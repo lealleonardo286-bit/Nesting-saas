@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NESTING Admin · Painel de Controle</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --marrom:#5b4636; --laranja:#ff8c42; --laranja-2:#e07030; --laranja-soft:#fff3ea;
+  --verde:#3b8a4a; --azul:#3b82f6; --amarelo:#f5b400; --vermelho:#ef4444;
+  --bg:#f4f1ec; --surface:#ffffff; --surface-2:#fafaf7; --border:#e7e2da;
+  --text:#1f1a14; --muted:#7a7167;
+  --shadow-sm:0 1px 2px rgba(20,15,10,.06); --shadow:0 8px 24px rgba(20,15,10,.08);
+  --grad:linear-gradient(135deg,#ff8c42 0%,#e07030 50%,#b8552c 100%);
+  --r:14px;
+}
+body.dark{
+  --bg:#0e1116; --surface:#161b22; --surface-2:#1c222b; --border:#2a313c;
+  --text:#f1ece2; --muted:#9aa0aa; --laranja-soft:#3a2418;
+  --shadow:0 8px 24px rgba(0,0,0,.5);
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;min-height:100vh}
+h1,h2,h3,.serif{font-family:'Fraunces',serif;letter-spacing:-.01em}
+
+/* ===== LOGIN ===== */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(1200px 600px at 20% 0%,#ffb380 0%,transparent 60%),var(--grad)}
+.login-card{background:var(--surface);border-radius:24px;padding:40px 32px;width:100%;max-width:420px;
+  box-shadow:0 30px 80px rgba(0,0,0,.25);text-align:center}
+.login-logo{width:72px;height:72px;border-radius:20px;background:var(--grad);display:grid;place-items:center;
+  margin:0 auto 16px;font-size:34px;color:#fff;box-shadow:0 10px 24px rgba(255,140,66,.4)}
+.login h1{font-size:28px;font-weight:800;color:var(--text);margin-bottom:6px}
+.login p.sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.field{text-align:left;margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface-2);
+  color:var(--text);font:inherit;font-size:14px;transition:.2s}
+.input:focus{outline:none;border-color:var(--laranja);box-shadow:0 0 0 4px rgba(255,140,66,.15)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border:none;border-radius:12px;
+  font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.2s;background:var(--surface-2);color:var(--text);
+  border:1px solid var(--border)}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--grad);color:#fff;border:none;box-shadow:0 8px 20px rgba(255,140,66,.35)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--vermelho);border:1px solid rgba(239,68,68,.3)}
+.btn-success{background:rgba(59,138,74,.12);color:var(--verde);border:1px solid rgba(59,138,74,.3)}
+.btn-block{width:100%}
+.btn-sm{padding:7px 12px;font-size:12px;border-radius:9px}
+.hint{margin-top:18px;padding:12px;background:var(--laranja-soft);border-left:3px solid var(--laranja);
+  border-radius:10px;font-size:12.5px;color:var(--text);text-align:left;line-height:1.55}
+
+/* ===== APP SHELL ===== */
+.app{display:none;flex-direction:column;min-height:100vh}
+.app.show{display:flex}
+.hero{
+  background:var(--grad);color:#fff;padding:22px 20px 90px;position:relative;overflow:hidden;
+}
+.hero::after{content:"";position:absolute;inset:auto 0 -1px 0;height:40px;
+  background:linear-gradient(to bottom,transparent,var(--bg));}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:1320px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:22px;backdrop-filter:blur(8px)}
+.brand-text h1{font-size:18px;font-weight:800;line-height:1.1}
+.brand-text p{font-size:11.5px;opacity:.85;text-transform:uppercase;letter-spacing:.1em}
+.hero-actions{display:flex;gap:8px}
+.icon-btn{width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  color:#fff;cursor:pointer;display:grid;place-items:center;font-size:16px;transition:.2s;backdrop-filter:blur(6px)}
+.icon-btn:hover{background:rgba(255,255,255,.28)}
+
+.hero-greet{max-width:1320px;margin:18px auto 0;color:#fff}
+.hero-greet h2{font-family:'Fraunces',serif;font-weight:700;font-size:28px;line-height:1.15;margin-bottom:4px}
+.hero-greet p{opacity:.9;font-size:14px}
+
+/* ===== TABS ===== */
+.main{max-width:1320px;margin:-72px auto 90px;padding:0 16px;width:100%;position:relative;z-index:2}
+.tabs-wrap{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:6px;
+  box-shadow:var(--shadow);display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-bottom:20px}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:10px 14px;border:none;background:transparent;color:var(--muted);font:inherit;font-weight:700;
+  font-size:13px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:.2s}
+.tab:hover{color:var(--text)}
+.tab.active{background:var(--grad);color:#fff;box-shadow:0 6px 16px rgba(255,140,66,.35)}
+
+.pane{display:none;animation:fade .25s ease}
+.pane.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ===== KPI / CARDS ===== */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--grad)}
+.kpi .lbl{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px}
+.kpi .val{font-family:'Fraunces',serif;font-size:30px;font-weight:800;color:var(--text);line-height:1}
+.kpi .delta{font-size:12px;margin-top:6px;color:var(--verde);font-weight:600}
+.kpi .delta.neg{color:var(--vermelho)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.card-h h3{font-size:18px;font-weight:700;color:var(--text)}
+.card-h .meta{font-size:12px;color:var(--muted)}
+
+/* ===== TABELA RESPONSIVA ===== */
+.table-scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  background:var(--surface-2);border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap}
+td{padding:12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.b-success{background:rgba(59,138,74,.12);color:var(--verde)}
+.b-warn{background:rgba(245,180,0,.15);color:#a07700}
+.b-danger{background:rgba(239,68,68,.12);color:var(--vermelho)}
+.b-info{background:rgba(59,130,246,.12);color:var(--azul)}
+.b-plan-basico{background:#e9e4dc;color:#5b4636}
+.b-plan-pro{background:rgba(255,140,66,.18);color:#b8552c}
+.b-plan-premium{background:linear-gradient(135deg,#fde68a,#f5b400);color:#5b4400}
+
+.row-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ===== SWITCH ===== */
+.switch{position:relative;width:42px;height:24px;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:#cfc8bd;border-radius:999px;transition:.2s}
+.slider::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked+.slider{background:var(--grad)}
+.switch input:checked+.slider::before{transform:translateX(18px)}
+
+/* ===== ADS ===== */
+.ad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.ad{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface-2);display:flex;flex-direction:column}
+.ad-img{aspect-ratio:16/9;background:#ddd center/cover no-repeat;position:relative}
+.ad-img .status{position:absolute;top:8px;left:8px}
+.ad-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:6px}
+.ad-body h4{font-size:15px;font-weight:700}
+.ad-body p{font-size:12.5px;color:var(--muted);line-height:1.45;flex:1}
+.ad-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-top:1px solid var(--border)}
+
+/* ===== LIMITES ===== */
+.limits{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.limit-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--surface-2)}
+.limit-card h4{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;margin-bottom:12px}
+.limit-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
+.limit-row:last-child{border:none}
+.limit-row input[type=number]{width:90px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;text-align:right}
+
+/* ===== MODAL ===== */
+.modal{display:none;position:fixed;inset:0;background:rgba(15,12,8,.55);z-index:1000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal.show{display:flex}
+.modal-content{background:var(--surface);border-radius:18px;padding:24px;max-width:520px;width:100%;max-height:92vh;overflow-y:auto;border:1px solid var(--border)}
+.modal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-h h3{font-size:20px;font-weight:800}
+
+/* ===== BOTTOM NAV (MOBILE) ===== */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);
+  display:none;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:50}
+.bnav button{flex:1;background:none;border:none;color:var(--muted);font:inherit;font-size:10px;font-weight:700;
+  display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;cursor:pointer;border-radius:10px}
+.bnav button.active{color:var(--laranja)}
+.bnav span.ic{font-size:20px}
+
+.empty{text-align:center;padding:30px 16px;color:var(--muted);font-size:13px}
+.empty .ic{font-size:36px;margin-bottom:8px;display:block}
+
+@media (max-width:768px){
+  .hero{padding:18px 16px 90px}
+  .hero-greet h2{font-size:22px}
+  .main{margin-top:-70px;padding:0 12px;margin-bottom:90px}
+  .tabs-wrap{display:none}
+  .bnav{display:flex}
+  .kpi .val{font-size:24px}
+  .modal-content{padding:18px;border-radius:18px 18px 0 0;max-width:100%;margin-bottom:0;align-self:flex-end}
+  .modal{align-items:flex-end;padding:0}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login">
+  <div class="login-card">
+    <div class="login-logo">🛡️</div>
+    <h1>Painel Admin</h1>
+    <p class="sub">NESTING · Centro de Monetização</p>
+    <form onsubmit="adminLogin(event)">
+      <div class="field"><label>Email</label><input class="input" id="emailInput" type="email" placeholder="admin@nesting.com" required></div>
+      <div class="field"><label>Senha</label><input class="input" id="senhaInput" type="password" placeholder="••••••••" required></div>
+      <button class="btn btn-primary btn-block" type="submit">Entrar no painel</button>
+    </form>
+    <div class="hint"><strong>🔐 Credenciais demo:</strong><br>admin@nesting.com · Admin@2026</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="app">
+  <header class="hero">
+    <div class="hero-top">
+      <div class="brand">
+        <div class="brand-mark">🛡️</div>
+        <div class="brand-text"><h1>NESTING Admin</h1><p>Gestão completa</p></div>
+      </div>
+      <div class="hero-actions">
+        <button class="icon-btn" onclick="exportarDados()" title="Exportar">⬇️</button>
+        <button class="icon-btn" onclick="toggleTheme()" title="Tema">🌙</button>
+        <button class="icon-btn" onclick="adminLogout()" title="Sair">🚪</button>
+      </div>
+    </div>
+    <div class="hero-greet">
+      <h2 id="greet">Bem-vindo de volta</h2>
+      <p>Monitore usuários, libere acessos e controle a monetização do app.</p>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- TABS DESKTOP -->
+    <div class="tabs-wrap" id="tabsWrap">
+      <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+      <button class="tab" data-tab="usuarios">👥 Usuários & Acessos</button>
+      <button class="tab" data-tab="pagamentos">💳 Pagamentos</button>
+      <button class="tab" data-tab="anuncios">📢 Anúncios</button>
+      <button class="tab" data-tab="planos">📦 Planos & Limites</button>
+      <button class="tab" data-tab="config">⚙️ Configurações</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="pane active">
+      <div class="kpis">
+        <div class="kpi"><div class="lbl">Usuários totais</div><div class="val" id="kUsuarios">0</div><div class="delta" id="kUsuariosDelta">+0 esta semana</div></div>
+        <div class="kpi"><div class="lbl">Assinantes pagos</div><div class="val" id="kPagos">0</div><div class="delta" id="kPagosDelta">0% conversão</div></div>
+        <div class="kpi"><div class="lbl">Receita (mês)</div><div class="val" id="kReceita">R$ 0</div><div class="delta" id="kReceitaDelta">+R$ 0 vs anterior</div></div>
+        <div class="kpi"><div class="lbl">Pagamentos pendentes</div><div class="val" id="kPendentes">0</div><div class="delta neg" id="kPendentesDelta">aguardando confirmação</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Atividade recente</h3><span class="meta">Últimos 7 dias</span></div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Quando</th><th>Tipo</th><th>Usuário</th><th>Detalhe</th></tr></thead>
+            <tbody id="atividadeBody"><tr><td colspan="4" class="empty">Sem atividade ainda.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>Distribuição por plano</h3><span class="meta" id="totalDistr">0 usuários</span></div>
+        <div id="distrBars" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </section>
+
+    <!-- USUÁRIOS -->
+    <section id="usuarios" class="pane">
+      <div class="card">
+        <div class="card-h">
+          <h3>👥 Usuários & Liberação de acesso</h3>
+          <div style="display:flex;gap:8px">
+            <input class="input" id="filtroUsuarios" placeholder="🔍 buscar email ou nome" style="width:220px;padding:8px 12px;font-size:13px">
+            <button class="btn btn-primary btn-sm" onclick="abrirNovoUsuario()">+ Novo</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Usuário</th><th>Plano</th><th>Status</th><th>Pagamento</th><th>Cadastro</th><th style="text-align:right">Ações</th></tr></thead>
+            <tbody id="usuariosBody"></tbody>
+          </table>
+        </div>
+        <p class="meta" style="margin-top:10px;font-size:12px;color:var(--muted)">Bloquear suspende acesso imediatamente no app do usuário. Alterar plano aplica limites em tempo real.</p>
+      </div>
+    </section>
+
+    <!-- PAGAMENTOS -->
+    <section id="pagamentos" class="pane">
+      <div class="kpis">
+        <div class="kpi"><div class="lbl">Confirmados</div><div class="val" id="pagConfirmados">0</div></div>
+        <div class="kpi"><div class="lbl">Pendentes</div><div class="val" id="pagPendentes">0</div></div>
+        <div class="kpi"><div class="lbl">Cancelados</div><div class="val" id="pagCancelados">0</div></div>
+        <div class="kpi"><div class="lbl">Receita total</div><div class="val" id="pagReceita">R$ 0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-h">
+          <h3>💳 Confirmação de pagamentos</h3>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm" data-filter="todos" onclick="filtrarPag(this,'todos')">Todos</button>
+            <button class="btn btn-sm" data-filter="pendente" onclick="filtrarPag(this,'pendente')">Pendentes</button>
+            <button class="btn btn-sm" data-filter="pago" onclick="filtrarPag(this,'pago')">Pagos</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Usuário</th><th>Plano</th><th>Valor</th><th>Método</th><th>Data</th><th>Status</th><th style="text-align:right">Ação</th></tr></thead>
+            <tbody id="pagBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANÚNCIOS -->
+    <section id="anuncios" class="pane">
+      <div class="card">
+        <div class="card-h">
+          <h3>📢 Anúncios no app</h3>
+          <button class="btn btn-primary btn-sm" onclick="abrirAnuncio()">+ Novo anúncio</button>
+        </div>
+        <p class="meta" style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Anúncios ativos aparecem para usuários do plano Básico. Premium e Pro ficam sem anúncios automaticamente.</p>
+        <div id="anunciosGrid" class="ad-grid"></div>
+      </div>
+    </section>
+
+    <!-- PLANOS & LIMITES -->
+    <section id="planos" class="pane">
+      <div class="card">
+        <div class="card-h">
+          <h3>📦 Limites por plano</h3>
+          <button class="btn btn-primary btn-sm" onclick="salvarLimites()">Salvar alterações</button>
+        </div>
+        <p class="meta" style="font-size:12.5px;color:var(--muted);margin-bottom:16px">
+          Os limites são aplicados em tempo real no app do usuário (chave <code>nesting_plan_limits</code>). Valor <strong>-1</strong> = ilimitado.
+        </p>
+        <div class="limits" id="limitsGrid"></div>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section id="config" class="pane">
+      <div class="card">
+        <div class="card-h"><h3>⚙️ Configurações</h3></div>
+        <div class="field"><label>Nome do app</label><input class="input" id="cfgNome" value="NESTING" style="max-width:380px"></div>
+        <div class="field"><label>Email de suporte</label><input class="input" id="cfgEmail" value="suporte@nesting.com" style="max-width:380px"></div>
+        <div class="field" style="display:flex;align-items:center;gap:12px;margin-top:14px">
+          <label class="switch"><input type="checkbox" id="cfgManut"><span class="slider"></span></label>
+          <div><strong>Modo manutenção</strong><div class="meta" style="font-size:12px;color:var(--muted)">Bloqueia o acesso de todos os usuários (exceto admin)</div></div>
+        </div>
+        <div class="field" style="display:flex;align-items:center;gap:12px">
+          <label class="switch"><input type="checkbox" id="cfgRegistros" checked><span class="slider"></span></label>
+          <div><strong>Novos cadastros abertos</strong><div class="meta" style="font-size:12px;color:var(--muted)">Quando desligado, novos usuários não conseguem se registrar</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="salvarConfig()" style="margin-top:10px">Salvar configurações</button>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h3>🧨 Zona de perigo</h3></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-danger btn-sm" onclick="resetarDemo()">Resetar dados de demonstração</button>
+          <button class="btn btn-ghost btn-sm" onclick="popularDemo()">Popular dados demo</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button data-tab="dashboard" class="active"><span class="ic">📊</span>Início</button>
+    <button data-tab="usuarios"><span class="ic">👥</span>Usuários</button>
+    <button data-tab="pagamentos"><span class="ic">💳</span>Pagar</button>
+    <button data-tab="anuncios"><span class="ic">📢</span>Ads</button>
+    <button data-tab="planos"><span class="ic">📦</span>Planos</button>
+  </nav>
+</div>
+
+<!-- MODAL USUÁRIO -->
+<div id="modalUsuario" class="modal" onclick="if(event.target===this)fecharModal('modalUsuario')">
+  <div class="modal-content">
+    <div class="modal-h"><h3 id="muTitulo">Novo usuário</h3><button class="icon-btn" style="background:var(--surface-2);color:var(--text);border:1px solid var(--border)" onclick="fecharModal('modalUsuario')">✕</button></div>
+    <input type="hidden" id="muOriginalEmail">
+    <div class="field"><label>Nome</label><input class="input" id="muNome"></div>
+    <div class="field"><label>Email</label><input class="input" id="muEmail" type="email"></div>
+    <div class="field"><label>Plano</label>
+      <select class="input" id="muPlano">
+        <option value="basico">Básico (gratuito)</option>
+        <option value="pro">Pro</option>
+        <option value="premium">Premium</option>
+      </select>
+    </div>
+    <div class="field"><label>Status</label>
+      <select class="input" id="muStatus">
+        <option value="ativo">✅ Ativo</option>
+        <option value="bloqueado">🚫 Bloqueado</option>
+        <option value="pendente">⏳ Pendente</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary btn-block" onclick="salvarUsuario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ANÚNCIO -->
+<div id="modalAd" class="modal" onclick="if(event.target===this)fecharModal('modalAd')">
+  <div class="modal-content">
+    <div class="modal-h"><h3 id="adTitulo">Novo anúncio</h3><button class="icon-btn" style="background:var(--surface-2);color:var(--text);border:1px solid var(--border)" onclick="fecharModal('modalAd')">✕</button></div>
+    <input type="hidden" id="adId">
+    <div class="field"><label>Título</label><input class="input" id="adNome" placeholder="Ex.: Promoção móveis 30% OFF"></div>
+    <div class="field"><label>Mensagem</label><input class="input" id="adMsg" placeholder="Texto que aparece no card"></div>
+    <div class="field"><label>URL da imagem</label><input class="input" id="adImg" placeholder="https://..."></div>
+    <div class="field"><label>Link de destino</label><input class="input" id="adLink" placeholder="https://..."></div>
+    <div class="field"><label>Posição</label>
+      <select class="input" id="adPos">
+        <option value="topo">Topo da Home</option>
+        <option value="entre">Entre cômodos</option>
+        <option value="rodape">Rodapé</option>
+      </select>
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:10px">
+      <label class="switch"><input type="checkbox" id="adAtivo" checked><span class="slider"></span></label>
+      <strong>Anúncio ativo</strong>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary btn-block" onclick="salvarAnuncio()">Salvar anúncio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====================== STATE / STORAGE ====================== */
+const K = {
+  users:'nesting_usuarios',
+  pays:'nesting_pagamentos',
+  ads:'nesting_anuncios',
+  limits:'nesting_plan_limits',
+  cfg:'nesting_admin_cfg',
+  log:'nesting_admin_log',
+  theme:'nesting_admin_theme',
+  sess:'nesting_admin_logado'
+};
+const ADMIN={email:'admin@nesting.com',senha:'Admin@2026'};
+const PRECOS={basico:0,pro:9.90,premium:19.90};
+const DEFAULT_LIMITS={
+  basico:{comodos:3,fotosPorComodo:5,relatorios:false,backup:false,integracoes:false,suporte:'comunidade',anuncios:true},
+  pro:{comodos:-1,fotosPorComodo:20,relatorios:true,backup:false,integracoes:false,suporte:'email',anuncios:false},
+  premium:{comodos:-1,fotosPorComodo:-1,relatorios:true,backup:true,integracoes:true,suporte:'24/7',anuncios:false}
+};
+const LIMIT_LABELS={
+  comodos:'Máx. cômodos', fotosPorComodo:'Fotos por cômodo',
+  relatorios:'Relatórios PDF', backup:'Backup automático',
+  integracoes:'Integrações', suporte:'Suporte', anuncios:'Exibe anúncios'
+};
+
+const get=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}};
+const set=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let filtroPag='todos';
+
+/* ====================== LOGIN ====================== */
+function adminLogin(e){
+  e.preventDefault();
+  const em=emailInput.value.trim(),s=senhaInput.value;
+  if(em===ADMIN.email && s===ADMIN.senha){
+    localStorage.setItem(K.sess,'1');
+    mostrarApp();
+  } else alert('❌ Credenciais inválidas');
+}
+function adminLogout(){
+  if(!confirm('Sair do painel?'))return;
+  localStorage.removeItem(K.sess);
+  loginScreen.style.display='flex';
+  appScreen.classList.remove('show');
+}
+function mostrarApp(){
+  loginScreen.style.display='none';
+  appScreen.classList.add('show');
+  initTheme(); seedIfEmpty(); renderAll();
+  greet.textContent='Olá, Admin 👋';
+}
+
+/* ====================== TEMA ====================== */
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem(K.theme, document.body.classList.contains('dark')?'dark':'light');
+}
+function initTheme(){ if(localStorage.getItem(K.theme)==='dark') document.body.classList.add('dark'); }
+
+/* ====================== TABS ====================== */
+function switchTab(name){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('active',p.id===name));
+  document.querySelectorAll('.tab,[data-tab]').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-tab]'); if(b) switchTab(b.dataset.tab);
+});
+
+/* ====================== SEED DEMO ====================== */
+function seedIfEmpty(){
+  if(!localStorage.getItem(K.limits)) set(K.limits,DEFAULT_LIMITS);
+  if(!localStorage.getItem(K.users)){
+    set(K.users,{
+      'leonardo@nesting.com':{nome:'Leonardo',plano:'premium',status:'ativo',statusPagamento:'pago',cadastro:'2026-04-12'},
+      'jana@nesting.com':{nome:'Jana',plano:'pro',status:'ativo',statusPagamento:'pago',cadastro:'2026-04-20'},
+      'maria@teste.com':{nome:'Maria Souza',plano:'basico',status:'ativo',statusPagamento:'na',cadastro:'2026-05-02'},
+      'joao@teste.com':{nome:'João Lima',plano:'pro',status:'pendente',statusPagamento:'pendente',cadastro:'2026-05-15'}
+    });
+  }
+  if(!localStorage.getItem(K.pays)){
+    const now=Date.now();
+    set(K.pays,[
+      {id:1,usuario:'leonardo@nesting.com',plano:'premium',valor:19.90,metodo:'cartao',data:new Date(now-86400000*5).toISOString(),status:'pago',periodo:'monthly'},
+      {id:2,usuario:'jana@nesting.com',plano:'pro',valor:9.90,metodo:'pix',data:new Date(now-86400000*10).toISOString(),status:'pago',periodo:'monthly'},
+      {id:3,usuario:'joao@teste.com',plano:'pro',valor:9.90,metodo:'boleto',data:new Date(now-86400000*1).toISOString(),status:'pendente',periodo:'monthly'}
+    ]);
+  }
+  if(!localStorage.getItem(K.ads)){
+    set(K.ads,[
+      {id:1,titulo:'Móveis com 30% OFF',msg:'Promoção especial em sofás e camas',img:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600',link:'#',pos:'topo',ativo:true},
+      {id:2,titulo:'Consultoria de Interiores',msg:'Fale com nossos especialistas',img:'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=600',link:'#',pos:'entre',ativo:false}
+    ]);
+  }
+  if(!localStorage.getItem(K.cfg)) set(K.cfg,{nome:'NESTING',email:'suporte@nesting.com',manutencao:false,registros:true});
+}
+function resetarDemo(){
+  if(!confirm('Apagar todos os dados (usuários, pagamentos, anúncios)?'))return;
+  [K.users,K.pays,K.ads,K.limits,K.cfg,K.log].forEach(k=>localStorage.removeItem(k));
+  seedIfEmpty(); renderAll();
+}
+function popularDemo(){ seedIfEmpty(); renderAll(); }
+
+/* ====================== RENDER ALL ====================== */
+function renderAll(){ renderDashboard(); renderUsuarios(); renderPagamentos(); renderAnuncios(); renderLimites(); renderConfig(); }
+
+/* ====================== DASHBOARD ====================== */
+function renderDashboard(){
+  const users=get(K.users,{}); const pays=get(K.pays,[]);
+  const arr=Object.values(users);
+  const pagos=arr.filter(u=>u.plano!=='basico' && u.statusPagamento==='pago').length;
+  const pendentes=pays.filter(p=>p.status==='pendente').length;
+  const mes=new Date().getMonth();
+  const receita=pays.filter(p=>p.status==='pago' && new Date(p.data).getMonth()===mes).reduce((s,p)=>s+p.valor,0);
+  kUsuarios.textContent=arr.length;
+  kPagos.textContent=pagos;
+  kReceita.textContent='R$ '+receita.toFixed(2).replace('.',',');
+  kPendentes.textContent=pendentes;
+  kUsuariosDelta.textContent=`${arr.filter(u=>diasAtras(u.cadastro)<=7).length} novos esta semana`;
+  kPagosDelta.textContent=arr.length?`${Math.round(pagos/arr.length*100)}% conversão`:'0%';
+  kReceitaDelta.textContent=pendentes?`${pendentes} aguardando confirmação`:'tudo em dia';
+  kPendentesDelta.textContent=pendentes?'aguardando confirmação':'sem pendências';
+
+  // Distribuição
+  const planos=['basico','pro','premium'];
+  totalDistr.textContent=`${arr.length} usuários`;
+  distrBars.innerHTML=planos.map(p=>{
+    const n=arr.filter(u=>u.plano===p).length;
+    const pct=arr.length?Math.round(n/arr.length*100):0;
+    return `<div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:4px">
+        <span>${planoIcon(p)} ${p.charAt(0).toUpperCase()+p.slice(1)}</span><span>${n} · ${pct}%</span>
+      </div>
+      <div style="height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:var(--grad);border-radius:99px;transition:.4s"></div>
+      </div></div>`;
+  }).join('');
+
+  // Atividade
+  const log=get(K.log,[]).slice(-10).reverse();
+  atividadeBody.innerHTML = log.length?log.map(l=>
+    `<tr><td>${fmtData(l.t)}</td><td><span class="badge b-info">${l.tipo}</span></td><td>${l.user||'—'}</td><td>${l.detalhe||''}</td></tr>`
+  ).join(''):`<tr><td colspan="4" class="empty"><span class="ic">📭</span>Nenhuma atividade registrada.</td></tr>`;
+}
+function diasAtras(d){return Math.floor((Date.now()-new Date(d).getTime())/86400000)}
+function fmtData(d){return new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function planoIcon(p){return p==='premium'?'👑':p==='pro'?'⭐':'🌱'}
+function planoBadge(p){return `<span class="badge b-plan-${p}">${planoIcon(p)} ${p.charAt(0).toUpperCase()+p.slice(1)}</span>`}
+function statusBadge(s){
+  if(s==='ativo')return '<span class="badge b-success">● Ativo</span>';
+  if(s==='bloqueado')return '<span class="badge b-danger">🚫 Bloqueado</span>';
+  return '<span class="badge b-warn">⏳ Pendente</span>';
+}
+function pagBadge(s){
+  return s==='pago'?'<span class="badge b-success">✓ Pago</span>'
+    :s==='pendente'?'<span class="badge b-warn">⏳ Pendente</span>'
+    :s==='cancelado'?'<span class="badge b-danger">✕ Cancelado</span>'
+    :'<span class="badge b-info">—</span>';
+}
+function log(tipo,user,detalhe){
+  const l=get(K.log,[]); l.push({t:new Date().toISOString(),tipo,user,detalhe});
+  set(K.log,l.slice(-100));
+}
+
+/* ====================== USUÁRIOS ====================== */
+function renderUsuarios(){
+  const users=get(K.users,{});
+  const q=(filtroUsuarios.value||'').toLowerCase();
+  const rows=Object.entries(users)
+    .filter(([em,u])=>!q||em.includes(q)||(u.nome||'').toLowerCase().includes(q));
+  usuariosBody.innerHTML = rows.length?rows.map(([em,u])=>`
+    <tr>
+      <td><strong>${u.nome||'—'}</strong><div style="font-size:11.5px;color:var(--muted)">${em}</div></td>
+      <td>${planoBadge(u.plano||'basico')}</td>
+      <td>${statusBadge(u.status||'ativo')}</td>
+      <td>${pagBadge(u.statusPagamento||'na')}</td>
+      <td style="font-size:12px;color:var(--muted)">${u.cadastro||'—'}</td>
+      <td style="text-align:right"><div class="row-actions" style="justify-content:flex-end">
+        ${u.status==='bloqueado'
+          ?`<button class="btn btn-success btn-sm" onclick="setStatus('${em}','ativo')">✓ Liberar</button>`
+          :`<button class="btn btn-danger btn-sm" onclick="setStatus('${em}','bloqueado')">🚫 Bloquear</button>`}
+        <button class="btn btn-sm" onclick="abrirEditarUsuario('${em}')">✎ Editar</button>
+        <button class="btn btn-sm" onclick="removerUsuario('${em}')" style="color:var(--vermelho)">🗑</button>
+      </div></td>
+    </tr>
+  `).join('') : `<tr><td colspan="6" class="empty"><span class="ic">👥</span>Nenhum usuário encontrado.</td></tr>`;
+}
+filtroUsuarios.addEventListener('input',renderUsuarios);
+
+function setStatus(em,st){
+  const u=get(K.users,{}); if(!u[em])return;
+  u[em].status=st; set(K.users,u);
+  log('acesso',em,st==='ativo'?'liberado':'bloqueado');
+  renderUsuarios(); renderDashboard();
+}
+function removerUsuario(em){
+  if(!confirm(`Remover usuário ${em}?`))return;
+  const u=get(K.users,{}); delete u[em]; set(K.users,u);
+  log('remoção',em,'usuário excluído');
+  renderUsuarios(); renderDashboard();
+}
+function abrirNovoUsuario(){
+  muTitulo.textContent='Novo usuário'; muOriginalEmail.value='';
+  muNome.value=''; muEmail.value=''; muPlano.value='basico'; muStatus.value='ativo';
+  modalUsuario.classList.add('show');
+}
+function abrirEditarUsuario(em){
+  const u=get(K.users,{})[em]; if(!u)return;
+  muTitulo.textContent='Editar usuário'; muOriginalEmail.value=em;
+  muNome.value=u.nome||''; muEmail.value=em; muPlano.value=u.plano||'basico'; muStatus.value=u.status||'ativo';
+  modalUsuario.classList.add('show');
+}
+function salvarUsuario(){
+  const orig=muOriginalEmail.value, em=muEmail.value.trim().toLowerCase();
+  if(!em)return alert('Informe o email');
+  const u=get(K.users,{});
+  if(orig && orig!==em){ delete u[orig]; }
+  u[em]={nome:muNome.value.trim()||em.split('@')[0],plano:muPlano.value,status:muStatus.value,
+         statusPagamento:u[em]?.statusPagamento||(muPlano.value==='basico'?'na':'pendente'),
+         cadastro:u[em]?.cadastro||new Date().toISOString().slice(0,10)};
+  set(K.users,u);
+  log(orig?'edição':'criação',em,'plano: '+muPlano.value);
+  fecharModal('modalUsuario'); renderAll();
+}
+function fecharModal(id){document.getElementById(id).classList.remove('show')}
+
+/* ====================== PAGAMENTOS ====================== */
+function renderPagamentos(){
+  const pays=get(K.pays,[]);
+  pagConfirmados.textContent=pays.filter(p=>p.status==='pago').length;
+  pagPendentes.textContent=pays.filter(p=>p.status==='pendente').length;
+  pagCancelados.textContent=pays.filter(p=>p.status==='cancelado').length;
+  pagReceita.textContent='R$ '+pays.filter(p=>p.status==='pago').reduce((s,p)=>s+p.valor,0).toFixed(2).replace('.',',');
+
+  const list=filtroPag==='todos'?pays:pays.filter(p=>p.status===filtroPag);
+  pagBody.innerHTML = list.length?list.slice().reverse().map(p=>`
+    <tr>
+      <td>${p.usuario}</td>
+      <td>${planoBadge(p.plano)}</td>
+      <td><strong>R$ ${p.valor.toFixed(2).replace('.',',')}</strong></td>
+      <td style="text-transform:capitalize">${p.metodo}</td>
+      <td style="font-size:12px;color:var(--muted)">${fmtData(p.data)}</td>
+      <td>${pagBadge(p.status)}</td>
+      <td style="text-align:right"><div class="row-actions" style="justify-content:flex-end">
+        ${p.status==='pendente'?`<button class="btn btn-success btn-sm" onclick="confirmarPagamento(${p.id})">✓ Confirmar</button>
+                                  <button class="btn btn-danger btn-sm" onclick="cancelarPagamento(${p.id})">✕ Cancelar</button>`
+                                  :p.status==='pago'?`<button class="btn btn-sm" onclick="reembolsar(${p.id})">↩ Reembolsar</button>`
+                                  :`<span class="meta" style="font-size:12px;color:var(--muted)">—</span>`}
+      </div></td>
+    </tr>
+  `).join('') : `<tr><td colspan="7" class="empty"><span class="ic">💳</span>Sem pagamentos.</td></tr>`;
+}
+function filtrarPag(btn,f){
+  filtroPag=f;
+  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('btn-primary',b.dataset.filter===f));
+  renderPagamentos();
+}
+function confirmarPagamento(id){
+  const pays=get(K.pays,[]); const p=pays.find(x=>x.id===id); if(!p)return;
+  p.status='pago';
+  const users=get(K.users,{});
+  if(users[p.usuario]){ users[p.usuario].plano=p.plano; users[p.usuario].status='ativo'; users[p.usuario].statusPagamento='pago'; }
+  set(K.pays,pays); set(K.users,users);
+  log('pagamento',p.usuario,`confirmado · ${p.plano} · R$ ${p.valor}`);
+  renderAll();
+}
+function cancelarPagamento(id){
+  if(!confirm('Cancelar pagamento?'))return;
+  const pays=get(K.pays,[]); const p=pays.find(x=>x.id===id); if(!p)return;
+  p.status='cancelado'; set(K.pays,pays);
+  log('pagamento',p.usuario,'cancelado'); renderAll();
+}
+function reembolsar(id){
+  if(!confirm('Marcar como reembolsado e mover usuário para Básico?'))return;
+  const pays=get(K.pays,[]); const p=pays.find(x=>x.id===id); if(!p)return;
+  p.status='cancelado';
+  const users=get(K.users,{}); if(users[p.usuario]){ users[p.usuario].plano='basico'; users[p.usuario].statusPagamento='na'; }
+  set(K.pays,pays); set(K.users,users);
+  log('reembolso',p.usuario,`R$ ${p.valor}`); renderAll();
+}
+
+/* ====================== ANÚNCIOS ====================== */
+function renderAnuncios(){
+  const ads=get(K.ads,[]);
+  anunciosGrid.innerHTML = ads.length?ads.map(a=>`
+    <div class="ad">
+      <div class="ad-img" style="background-image:url('${a.img||''}')">
+        <span class="badge ${a.ativo?'b-success':'b-danger'} status">${a.ativo?'● Ativo':'○ Pausado'}</span>
+      </div>
+      <div class="ad-body">
+        <h4>${a.titulo}</h4>
+        <p>${a.msg||''}</p>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">📍 ${a.pos}</div>
+      </div>
+      <div class="ad-foot">
+        <label class="switch"><input type="checkbox" ${a.ativo?'checked':''} onchange="toggleAd(${a.id})"><span class="slider"></span></label>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="editarAd(${a.id})">✎</button>
+          <button class="btn btn-sm" onclick="removerAd(${a.id})" style="color:var(--vermelho)">🗑</button>
+        </div>
+      </div>
+    </div>
+  `).join('') : `<div class="empty"><span class="ic">📢</span>Nenhum anúncio. Clique em <strong>+ Novo anúncio</strong>.</div>`;
+}
+function abrirAnuncio(){
+  adTitulo.textContent='Novo anúncio'; adId.value=''; adNome.value=''; adMsg.value=''; adImg.value=''; adLink.value=''; adPos.value='topo'; adAtivo.checked=true;
+  modalAd.classList.add('show');
+}
+function editarAd(id){
+  const a=get(K.ads,[]).find(x=>x.id===id); if(!a)return;
+  adTitulo.textContent='Editar anúncio'; adId.value=id; adNome.value=a.titulo; adMsg.value=a.msg||''; adImg.value=a.img||''; adLink.value=a.link||''; adPos.value=a.pos||'topo'; adAtivo.checked=!!a.ativo;
+  modalAd.classList.add('show');
+}
+function salvarAnuncio(){
+  if(!adNome.value.trim())return alert('Informe o título');
+  const ads=get(K.ads,[]);
+  if(adId.value){
+    const a=ads.find(x=>x.id==adId.value);
+    Object.assign(a,{titulo:adNome.value,msg:adMsg.value,img:adImg.value,link:adLink.value,pos:adPos.value,ativo:adAtivo.checked});
+  } else {
+    ads.push({id:Date.now(),titulo:adNome.value,msg:adMsg.value,img:adImg.value,link:adLink.value,pos:adPos.value,ativo:adAtivo.checked});
+  }
+  set(K.ads,ads); log('anúncio','admin',(adId.value?'editado: ':'criado: ')+adNome.value);
+  fecharModal('modalAd'); renderAnuncios();
+}
+function toggleAd(id){
+  const ads=get(K.ads,[]); const a=ads.find(x=>x.id===id); a.ativo=!a.ativo; set(K.ads,ads);
+  log('anúncio','admin',(a.ativo?'ativado: ':'pausado: ')+a.titulo); renderAnuncios();
+}
+function removerAd(id){
+  if(!confirm('Remover anúncio?'))return;
+  set(K.ads,get(K.ads,[]).filter(x=>x.id!==id)); renderAnuncios();
+}
+
+/* ====================== LIMITES ====================== */
+function renderLimites(){
+  const lim=get(K.limits,DEFAULT_LIMITS);
+  limitsGrid.innerHTML = ['basico','pro','premium'].map(p=>`
+    <div class="limit-card">
+      <h4>${planoIcon(p)} ${p.charAt(0).toUpperCase()+p.slice(1)} <span class="badge b-info" style="margin-left:auto">R$ ${PRECOS[p].toFixed(2).replace('.',',')}</span></h4>
+      ${Object.entries(LIMIT_LABELS).map(([k,lbl])=>{
+        const v=lim[p][k];
+        if(typeof v==='boolean')
+          return `<div class="limit-row"><span>${lbl}</span>
+            <label class="switch"><input type="checkbox" ${v?'checked':''} data-plan="${p}" data-key="${k}" data-type="bool"><span class="slider"></span></label></div>`;
+        if(typeof v==='number')
+          return `<div class="limit-row"><span>${lbl}</span>
+            <input type="number" value="${v}" data-plan="${p}" data-key="${k}" data-type="num"></div>`;
+        return `<div class="limit-row"><span>${lbl}</span>
+          <input type="text" value="${v}" data-plan="${p}" data-key="${k}" data-type="str" style="width:130px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:13px"></div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+function salvarLimites(){
+  const lim=get(K.limits,DEFAULT_LIMITS);
+  limitsGrid.querySelectorAll('[data-plan]').forEach(el=>{
+    const p=el.dataset.plan,k=el.dataset.key,t=el.dataset.type;
+    lim[p][k] = t==='bool'?el.checked : t==='num'?parseInt(el.value,10) : el.value;
+  });
+  set(K.limits,lim);
+  log('limites','admin','planos atualizados');
+  alert('✅ Limites salvos. O app dos usuários aplicará as novas regras na próxima ação.');
+}
+
+/* ====================== CONFIG ====================== */
+function renderConfig(){
+  const c=get(K.cfg,{});
+  cfgNome.value=c.nome||'NESTING'; cfgEmail.value=c.email||'suporte@nesting.com';
+  cfgManut.checked=!!c.manutencao; cfgRegistros.checked=c.registros!==false;
+}
+function salvarConfig(){
+  set(K.cfg,{nome:cfgNome.value,email:cfgEmail.value,manutencao:cfgManut.checked,registros:cfgRegistros.checked});
+  log('config','admin','configurações atualizadas');
+  alert('✅ Configurações salvas');
+}
+
+/* ====================== EXPORT ====================== */
+function exportarDados(){
+  const data={usuarios:get(K.users,{}),pagamentos:get(K.pays,[]),anuncios:get(K.ads,[]),limites:get(K.limits,DEFAULT_LIMITS),config:get(K.cfg,{})};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='nesting-admin-export-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+}
+
+/* ====================== INIT ====================== */
+if(localStorage.getItem(K.sess)==='1') mostrarApp();
+</script>
+</body>
+</html>
